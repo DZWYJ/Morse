@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摩斯电码敲击工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .result-area {
+            margin-bottom: 30px;
+        }
+        .result-item {
+            margin-bottom: 15px;
+        }
+        .result-item label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .result-item input {
+            width: 100%;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .input-area {
+            text-align: center;
+        }
+        .input-area h2 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            width: 120px;
+            height: 120px;
+            font-size: 20px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-btn {
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .dot-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .dot-btn:hover {
+            background-color: #45a049;
+        }
+        .dash-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .dash-btn:hover {
+            background-color: #0b7dda;
+        }
+        .clear-btn, .table-btn {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 120px;
+            height: 50px;
+            text-align: center;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .clear-btn:hover {
+            background-color: #da190b;
+        }
+        .table-btn {
+            background-color: #ff9800;
+            color: white;
+            margin-top: 0;
+        }
+        .table-btn:hover {
+            background-color: #f57c00;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .control-buttons button {
+            margin: 0;
+        }
+        .morse-table {
+            margin-top: 30px;
+        }
+        .morse-table h2 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .table-item {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .table-item .char {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .table-item .code {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>鲈鱼のMorse🐟️</h1>
+        
+        <div class="result-area">
+            <div class="result-item">
+                <label>输入内容:</label>
+                <input type="text" id="currentInput" readonly>
+            </div>
+            <div class="result-item">
+                <label>摩斯电码:</label>
+                <input type="text" id="morseResult" readonly>
+            </div>
+            <div class="result-item">
+                <label>对应释义:</label>
+                <input type="text" id="textResult" readonly>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <h2>点击输入</h2>
+            <div class="buttons">
+                <button class="dot-btn" onclick="addMorse('.')">· (点)</button>
+                <button class="dash-btn" onclick="addMorse('-')">− (划)</button>
+            </div>
+            <div class="control-buttons">
+                <button class="clear-btn" onclick="clearMorse()">清空</button>
+                <button class="table-btn" onclick="toggleMorseTable()">摩斯</button>
+            </div>
+        </div>
+        
+        <div class="morse-table" id="morseTable" style="display: none;">
+            <h2>国际通用摩斯密码表</h2>
+            <div class="table-container">
+                <div class="table-item"><div class="char">A</div><div class="code">· −</div></div>
+                <div class="table-item"><div class="char">B</div><div class="code">− · · ·</div></div>
+                <div class="table-item"><div class="char">C</div><div class="code">− · − ·</div></div>
+                <div class="table-item"><div class="char">D</div><div class="code">− · ·</div></div>
+                <div class="table-item"><div class="char">E</div><div class="code">·</div></div>
+                <div class="table-item"><div class="char">F</div><div class="code">· · − ·</div></div>
+                <div class="table-item"><div class="char">G</div><div class="code">− − ·</div></div>
+                <div class="table-item"><div class="char">H</div><div class="code">· · · ·</div></div>
+                <div class="table-item"><div class="char">I</div><div class="code">· ·</div></div>
+                <div class="table-item"><div class="char">J</div><div class="code">· − − −</div></div>
+                <div class="table-item"><div class="char">K</div><div class="code">− · −</div></div>
+                <div class="table-item"><div class="char">L</div><div class="code">· − · ·</div></div>
+                <div class="table-item"><div class="char">M</div><div class="code">− −</div></div>
+                <div class="table-item"><div class="char">N</div><div class="code">− ·</div></div>
+                <div class="table-item"><div class="char">O</div><div class="code">− − −</div></div>
+                <div class="table-item"><div class="char">P</div><div class="code">· − − ·</div></div>
+                <div class="table-item"><div class="char">Q</div><div class="code">− − · −</div></div>
+                <div class="table-item"><div class="char">R</div><div class="code">· − ·</div></div>
+                <div class="table-item"><div class="char">S</div><div class="code">· · ·</div></div>
+                <div class="table-item"><div class="char">T</div><div class="code">−</div></div>
+                <div class="table-item"><div class="char">U</div><div class="code">· · −</div></div>
+                <div class="table-item"><div class="char">V</div><div class="code">· · · −</div></div>
+                <div class="table-item"><div class="char">W</div><div class="code">· − −</div></div>
+                <div class="table-item"><div class="char">X</div><div class="code">− · · −</div></div>
+                <div class="table-item"><div class="char">Y</div><div class="code">− · − −</div></div>
+                <div class="table-item"><div class="char">Z</div><div class="code">− − · ·</div></div>
+                <div class="table-item"><div class="char">0</div><div class="code">− − − − −</div></div>
+                <div class="table-item"><div class="char">1</div><div class="code">· − − − −</div></div>
+                <div class="table-item"><div class="char">2</div><div class="code">· · − − −</div></div>
+                <div class="table-item"><div class="char">3</div><div class="code">· · · − −</div></div>
+                <div class="table-item"><div class="char">4</div><div class="code">· · · · −</div></div>
+                <div class="table-item"><div class="char">5</div><div class="code">· · · · ·</div></div>
+                <div class="table-item"><div class="char">6</div><div class="code">− · · · ·</div></div>
+                <div class="table-item"><div class="char">7</div><div class="code">− − · · ·</div></div>
+                <div class="table-item"><div class="char">8</div><div class="code">− − − · ·</div></div>
+                <div class="table-item"><div class="char">9</div><div class="code">− − − − ·</div></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 摩斯电码对照表
+        const morseCode = {
+            '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
+            '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
+            '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O',
+            '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
+            '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y',
+            '--..': 'Z', '-----': '0', '.----': '1', '..---': '2', '...--': '3',
+            '....-': '4', '.....': '5', '-....': '6', '--...': '7', '---..': '8',
+            '----.': '9'
+        };
+        
+        let currentCode = '';
+        let fullMorse = '';
+        let fullText = '';
+        let audioContext = null;
+        
+        // 初始化音频上下文
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // 播放摩斯电码声音
+        function playMorseSound(duration) {
+            initAudioContext();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        function addMorse(symbol) {
+            currentCode += symbol;
+            fullMorse += symbol;
+            
+            // 播放声音
+            if (symbol === '.') {
+                playMorseSound(0.1); // 点的持续时间
+            } else if (symbol === '-') {
+                playMorseSound(0.5); // 划的持续时间（延长以增加区别度）
+            }
+            
+            updateDisplay();
+        }
+        
+        function clearMorse() {
+            currentCode = '';
+            fullMorse = '';
+            fullText = '';
+            updateDisplay();
+        }
+        
+        function updateDisplay() {
+            // 更新当前输入的摩斯电码
+            document.getElementById('currentInput').value = currentCode;
+            
+            // 更新完整的摩斯电码
+            document.getElementById('morseResult').value = fullMorse;
+            
+            // 简单的摩斯电码解析（按空格分隔）
+            // 注意：这里只是简单实现，实际摩斯电码需要考虑时间间隔
+            const words = fullMorse.split(' ');
+            fullText = words.map(word => morseCode[word] || '?').join('');
+            document.getElementById('textResult').value = fullText;
+        }
+        
+        // 添加空格键支持，用于分隔字符
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                fullMorse += ' ';
+                currentCode = '';
+                updateDisplay();
+            }
+        });
+        
+        // 切换摩斯密码表的显示/隐藏
+        function toggleMorseTable() {
+            const table = document.getElementById('morseTable');
+            if (table.style.display === 'none') {
+                table.style.display = 'block';
+            } else {
+                table.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
